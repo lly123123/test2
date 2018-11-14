@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		 http://www.springframework.org/schema/aop
+      http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+      http://www.springframework.org/schema/data/mongo 
+          http://www.springframework.org/schema/data/mongo/spring-mongo-1.7.xsd 
+		">
+
+	<!-- 注解扫描包 -->
+	<context:component-scan base-package="com.jk">
+	    <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<!-- 开启注解 -->
+	<mvc:annotation-driven />
+	<mvc:default-servlet-handler/>
+	<mvc:annotation-driven>
+		 <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+<!--             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> -->
+   		 	<!--             json格式转换 -->
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">    
+<!--                                     日期转换 -->
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">    
+                        <property name="dateFormat">    
+                            <bean class="java.text.SimpleDateFormat">    
+                                <constructor-arg type="java.lang.String" value="yyyy-MM-dd " />    
+                            </bean>    
+                        </property>    
+                    </bean>    
+                </property>
+            </bean>
+   
+             	
+   		 </mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	
+	<!--上文件上传解析-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--文件的最大上传大小-->
+        <property name="maxUploadSize" value="10000000"/>
+    </bean>
+
+	<!-- 定义跳转的文件的前后缀 ，视图模式配置-->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 -->
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<!-- 拦截器 -->
+<!-- <mvc:interceptors>
+	<mvc:interceptor>
+		<mvc:mapping path="/**" />
+		<bean class="com.jk.interceptor.MyInterceptorAdapter">
+			不需要权限验证的地址
+			<property name="excludeUrls">
+				<list>
+				<value>/user/register.do</value> 注册
+				<value>/user/login.do</value> 登录
+				<value>/user/loginName.do</value> 登录
+				<value>/tree/validateCode.do</value> 登录
+				</list>
+			</property>
+		</bean>
+	</mvc:interceptor>
+</mvc:interceptors> -->
+	
+	<!-- <mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**/*.do"/>
+			<mvc:exclude-mapping path="/user/login.do"/>
+			<bean class="com.jk.songxj.interceptor.LoginInterceptor"></bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**/*.do"/>
+			<mvc:exclude-mapping path="/user/login.do"/>
+			<mvc:exclude-mapping path="/user/toIndex.do"/>
+			<mvc:exclude-mapping path="/**/*Common.do"/>
+			<bean class="com.jk.songxj.interceptor.PowerInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+	<!-- 开启切点注解 -->
+	<aop:aspectj-autoproxy />
+</beans>
